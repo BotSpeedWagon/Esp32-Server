@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Controle do Motor</title>
+  <style>
+    /* ... seu CSS já existente ... */
+    #webcamStream {
+      margin-top: 20px;
+      border: 2px solid #333;
+      max-width: 640px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Controle do Motor</h1>
+  <!-- Botões e controles já existentes -->
+  <button onclick="enviarComando('girar')">Girar</button>
+  <button onclick="enviarComando('parar')">Parar</button>
+  <br><br>
+  <label for="velSlider">Velocidade:</label>
+  <input id="velSlider" type="range" min="0" max="255" value="200" oninput="atualizarVel(this.value)" />
+  <span id="velValue">200</span>
+  
+  <p id="status">Status: Desconhecido</p>
+  
+  <!-- Área para o stream da webcam -->
+  <h2>Stream da Webcam</h2>
+  <img id="webcamStream" src="" alt="Stream da Webcam" />
+
+  <script>
+    // Conexão para controle (/ws)
+    const socket = new WebSocket("wss://" + window.location.host + "/ws");
+    socket.onopen = () => { console.log("Conectado ao WebSocket de controle"); };
+    socket.onmessage = (event) => {
+      console.log("Mensagem de controle recebida:", event.data);
+      if (event.data.startsWith("status:")) {
+        document.getElementById("status").textContent = "Status: " + event.data.split(":")[1];
+      }
+    };
+    function enviarComando(cmd) {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(cmd);
+        console.log("Comando enviado:", cmd);
+      } else {
+        console.log("WebSocket de controle não está conectado");
+      }
+    }
+    function atualizarVel(valor) {
+      document.getElementById("velValue").textContent = valor;
+      enviarComando("velocidade:" + valor);
+    }
+
+    // Conexão para visualizar o stream da webcam (/webcam_view)
+    const webcamSocket = new WebSocket("wss://" + window.location.host + "/webcam_view");
+    webcamSocket.binaryType = "arraybuffer";
+    webcamSocket.onopen = () => { console.log("Conectado ao WebSocket de webcam view"); };
+    webcamSocket.onmessage = (event) => {
+      // Cria um blob a partir dos dados binários e atualiza a imagem
+      const blob = new Blob([event.data], { type: "image/jpeg" });
+      document.getElementById("webcamStream").src = URL.createObjectURL(blob);
+    };
+  </script>
+</body>
+</html>

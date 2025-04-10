@@ -93,11 +93,17 @@ async def webcam_handler(request):
                     )
             # Se for texto diferente, pode ignorar ou tratar como comando extra se necessário
         elif msg.type == web.WSMsgType.BINARY:
-            # Recebe frame e o retransmite para os visualizadores
+        # Recebe frame e o retransmite para os visualizadores
             if is_sender:
                 for viewer in webcam_viewers.copy():
-                    if not viewer.closed:
+                    if viewer.closed:
+                        webcam_viewers.discard(viewer)
+                        continue
+                    try:
                         await viewer.send_bytes(msg.data)
+                    except Exception as e:
+                        print(f"Erro ao enviar frame para um visualizador: {e}")
+                        webcam_viewers.discard(viewer)
         elif msg.type == web.WSMsgType.ERROR:
             print("Erro no WebSocket da webcam:", ws.exception())
 

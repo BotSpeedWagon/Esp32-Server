@@ -4,32 +4,66 @@
   <meta charset="UTF-8" />
   <title>Controle do Motor</title>
   <style>
-    /* ... seu CSS já existente ... */
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin: 5px;
+    }
+
+    #ligarPcBtn {
+      font-size: 12px;
+      padding: 5px 10px;
+      float: right;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #ligarPcBtn:hover {
+      background-color: #d32f2f;
+    }
+
     #webcamStream {
       margin-top: 20px;
       border: 2px solid #333;
       max-width: 640px;
     }
+
+    #controleBtns {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    #mainBtns {
+      flex-grow: 1;
+    }
   </style>
 </head>
 <body>
   <h1>Controle do Motor</h1>
-  <!-- Botões e controles já existentes -->
-  <button onclick="enviarComando('girar')">Girar</button>
-  <button onclick="enviarComando('parar')">Parar</button>
-  <br><br>
+
+  <div id="controleBtns">
+    <div id="mainBtns">
+      <button onclick="enviarComando('girar')">Girar</button>
+      <button onclick="enviarComando('parar')">Parar</button>
+    </div>
+    <button id="ligarPcBtn" onclick="enviarComando('ligarPC')">Ligar PC</button>
+  </div>
+
   <label for="velSlider">Velocidade:</label>
   <input id="velSlider" type="range" min="0" max="255" value="200" oninput="atualizarVel(this.value)" />
   <span id="velValue">200</span>
-  
+
   <p id="status">Status: Desconhecido</p>
-  
-  <!-- Área para o stream da webcam -->
+
   <h2>Stream da Webcam</h2>
   <img id="webcamStream" src="" alt="Stream da Webcam" />
 
   <script>
-    // Conexão para controle (/ws)
     const socket = new WebSocket("wss://" + window.location.host + "/ws");
     socket.onopen = () => { console.log("Conectado ao WebSocket de controle"); };
     socket.onmessage = (event) => {
@@ -38,6 +72,7 @@
         document.getElementById("status").textContent = "Status: " + event.data.split(":")[1];
       }
     };
+
     function enviarComando(cmd) {
       if (socket.readyState === WebSocket.OPEN) {
         socket.send(cmd);
@@ -46,17 +81,16 @@
         console.log("WebSocket de controle não está conectado");
       }
     }
+
     function atualizarVel(valor) {
       document.getElementById("velValue").textContent = valor;
       enviarComando("velocidade:" + valor);
     }
 
-    // Conexão para visualizar o stream da webcam (/webcam_view)
     const webcamSocket = new WebSocket("wss://" + window.location.host + "/webcam_view");
     webcamSocket.binaryType = "arraybuffer";
     webcamSocket.onopen = () => { console.log("Conectado ao WebSocket de webcam view"); };
     webcamSocket.onmessage = (event) => {
-      // Cria um blob a partir dos dados binários e atualiza a imagem
       const blob = new Blob([event.data], { type: "image/jpeg" });
       document.getElementById("webcamStream").src = URL.createObjectURL(blob);
     };

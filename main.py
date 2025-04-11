@@ -43,7 +43,8 @@ async def control_handler(request):
 
             # Envio de comandos para a ESP32
             elif message in ("toggle_led", "girar", "parar",
-                             "velocidade:rapida", "velocidade:lenta"):
+                             "velocidade:rapida", "velocidade:lenta",
+                             "ligarPC):
                 if esp32_conn and not esp32_conn.closed and getattr(
                         esp32_conn, "is_esp32", False):
                     await esp32_conn.send_str(message)

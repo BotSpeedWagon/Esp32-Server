@@ -10,19 +10,33 @@
       margin: 5px;
     }
 
-    #ligarPcBtn {
+    #ligarPcBtn,
+    #desligarPcBtn {
       font-size: 12px;
       padding: 5px 10px;
       float: right;
-      background-color: #f44336;
-      color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      margin-left: 5px;
+    }
+
+    #ligarPcBtn {
+      background-color: #f44336;
+      color: white;
     }
 
     #ligarPcBtn:hover {
       background-color: #d32f2f;
+    }
+
+    #desligarPcBtn {
+      background-color: #555;
+      color: white;
+    }
+
+    #desligarPcBtn:hover {
+      background-color: #333;
     }
 
     #webcamStream {
@@ -51,7 +65,10 @@
       <button onclick="enviarComando('girar')">Girar</button>
       <button onclick="enviarComando('parar')">Parar</button>
     </div>
-    <button id="ligarPcBtn" onclick="enviarComando('ligarPC')">Ligar PC</button>
+    <div>
+      <button id="ligarPcBtn" onclick="enviarComando('ligarPC')">Ligar PC</button>
+      <button id="desligarPcBtn" onclick="enviarComando('desligarPC')">Desligar PC</button>
+    </div>
   </div>
 
   <label for="velSlider">Velocidade:</label>
